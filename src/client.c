@@ -41,40 +41,27 @@ void connect_to_server() {
 }
 
 // Função que verifica as mensagens recebidas do servidor
-
 void check_messages() {
     char buffer[MAX_MSG_LEN];
-    fd_set readfds;
-    struct timeval timeout;
-
-    // Configurando select() para verificação não-bloqueante
-    FD_ZERO(&readfds);
-    FD_SET(socket_fd, &readfds);
-
-    timeout.tv_sec = 0;
-    timeout. tv_usec = 0;
-
-    // Verificando se há dados para ler
-    if (select(socket_fd + 1, &readfds, NULL, NULL, &timeout) > 0) {
-        if (FD_ISSET(socket_fd, &readfds)) {
-            // Lendo os dados disponíveis
-            int bytes_received = recv(socket_fd, buffer, sizeof(buffer) - 1, 0);
+    
+    // Verificação não-bloqueante simples
+    int bytes_received = recv(socket_fd, buffer, sizeof(buffer) - 1, MSG_DONTWAIT);
+    if (bytes_received > 0) {
+        buffer[bytes_received] = '\0';
+        
+        if (strncmp(buffer, "DELIVER_MSG", 11) == 0) {
+            char from[MAX_NICK_LEN], text[256];
+            long ts;
             
-            if (bytes_received > 0) {
-                buffer[bytes_received] = '\0';
-                
-                // Processando mensagem entregue
-                if (strncmp(buffer, "DELIVER_MSG", 11) == 0) {
-                    char from[MAX_NICK_LEN], text[256];
-                    long ts;
-                    
-                    if (sscanf(buffer, "DELIVER_MSG{\"from\":\"%[^\"]\",\"text\":\"%[^\"]\",\"ts\":%ld}", from, text, &ts) == 3)
-                        printf("\n>>> Nova mensagem de %s: %s\n", from, text);
-                } else {
-                    printf("Servidor: %s\n", buffer);
-                }
-            }
+            if (sscanf(buffer, "DELIVER_MSG{\"from\":\"%[^\"]\",\"text\":\"%[^\"]\",\"ts\":%ld}", 
+                       from, text, &ts) == 3)
+                printf("\n>>> Nova mensagem de %s: %s\n", from, text);
+        } else {
+            printf("Servidor: %s\n", buffer);
         }
+    } else if (bytes_received == 0) {
+        printf("Servidor desconectou\n");
+        exit(1);
     }
 }
 
@@ -99,25 +86,6 @@ void show_menu() {
 void send_command(const char* command){
     // Enviando comando para o servidor
     send(socket_fd, command, strlen(command), 0);
-
-    // Recebendo resposta do sercidor
-    char response[MAX_MSG_LEN];
-    int bytes_received = recv(socket_fd, response, sizeof(response) -1, 0);
-    if (bytes_received > 0) {
-        response[bytes_received] = '\0'; // Terminador de string
-        printf("Servidor: %s\n", response);
-
-        // Verificando se é uma mensagem entregue
-        if (strncmp(response, "DELIVER_MSG", 11) == 0) {
-            char from[MAX_NICK_LEN], text[256];
-            long ts;
-
-            // Mensagem entregue
-            if (sscanf(response, "DELIVER_MSG{\"from\":\"%[^\"]\",\"text\":\"%[^\"]\",\"ts\":%ld}", from, text, &ts) == 3)
-                printf("\n>>> Nova mensagem de %s: %s\n", from, text);
-            
-        }   
-    }
 }
 
 // Interface para registro de um novo usuário
@@ -216,9 +184,19 @@ int main() {
         show_menu();
 
         // Lendo entrada do usuário
-        if (fgets(input, sizeof(input), stdin) == NULL)
-            break;
-        
+        if (fgets(input, sizeof(input), stdin) == NULL){
+            usleep(100000); // Pequena pausa para não sobrecarregar CPU
+            continue;
+        }
+
+        // Remover newline se existir
+        input[strcspn(input, "\n")] = 0;
+
+        // Verificar se a entrada está vazia
+        if (strlen(input) == 0) {
+            continue;
+        }
+
         option = atoi(input);
 
         // Processamento da escolha
