@@ -56,7 +56,13 @@ void check_messages() {
             if (sscanf(buffer, "DELIVER_MSG{\"from\":\"%[^\"]\",\"text\":\"%[^\"]\",\"ts\":%ld}", 
                        from, text, &ts) == 3)
                 printf("\n>>> Nova mensagem de %s: %s\n", from, text);
-        } else {
+        } 
+        else if (strncmp(buffer, "USERS{", 6) == 0) {
+            printf("\n=== LISTA DE USUÁRIOS ===\n");
+            printf("%s\n", buffer);
+            printf("==========================\n");
+        }
+        else {
             printf("Servidor: %s\n", buffer);
         }
     } else if (bytes_received == 0) {
@@ -74,9 +80,9 @@ void show_menu() {
     printf("2. Login\n");
     printf("3. Listar Usuários\n");
     printf("4. Enviar Mensagem\n");
-    printf("5. Sair\n");
+    printf("5. Logout\n");
     printf("6. Deletar\n");
-    printf("7. Sair\n");
+    printf("7. Fecha Programa\n");
 
     printf("Escolha: ");
     
@@ -121,6 +127,9 @@ void login_user() {
 // Interface para solicitação de lista de usuários do servidor
 void list_users() {
     send_command("LIST");
+    // Pequena pausa para garantir que a resposta chegue
+    usleep(100000); // 100ms
+    check_messages(); // Forçar verificação imediata
 }
 
 // Interface para envio de mensagens
