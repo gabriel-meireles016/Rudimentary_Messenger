@@ -49,6 +49,7 @@ User* find_user(const char* nick) {
     return NULL;
 }
 
+// Função que elimina a primeira mensagem da fila do usuário
 char* pop_from_queue(User* user) {
     if (user->queue_size == 0)
         return NULL;
