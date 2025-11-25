@@ -40,6 +40,12 @@ void connect_to_server() {
     printf("Conectado ao servidor\n");
 }
 
+// Função para limpar o buffer de entrada
+void clear_input_buffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
 // Função que verifica as mensagens recebidas do servidor
 void check_messages() {
     char buffer[MAX_MSG_LEN];
@@ -99,11 +105,13 @@ void register_user() {
     char nick[MAX_NICK_LEN], name[MAX_NAME_LEN];
     printf("Apelido: ");
     scanf("%s", nick);
+    clear_input_buffer();
     
     printf("Nome Completo: ");
     scanf(" %[^\n]", name);
+    clear_input_buffer();
 
-    // Formatando e enviando o comanado REGISTER
+    // Formatando e enviando o comando REGISTER
     char command[MAX_MSG_LEN];
     snprintf(command, sizeof(command), "REGISTER {%s, %s}", nick, name);
     send_command(command);
@@ -114,6 +122,7 @@ void login_user() {
     char nick[MAX_NICK_LEN];
     printf("Apelido: ");
     scanf("%s", nick);
+    clear_input_buffer();
 
     // Formatando e enviando comando LOGIN
     char command[MAX_MSG_LEN];
@@ -129,7 +138,7 @@ void list_users() {
     send_command("LIST");
     // Pequena pausa para garantir que a resposta chegue
     usleep(100000); // 100ms
-    check_messages(); // Forçar verificação imediata
+    check_messages();
 }
 
 // Interface para envio de mensagens
@@ -142,9 +151,11 @@ void send_message() {
     char to[MAX_NICK_LEN], text[256];
     printf("Para: ");
     scanf("%s", to);
+    clear_input_buffer();
     
     printf("Mensagem: ");
     scanf(" %[^\n]", text);
+    clear_input_buffer();
     
     // Formatando e enviando comando SEND_MSG
     char command[MAX_MSG_LEN];
@@ -173,6 +184,7 @@ void delete_user() {
     char nick[MAX_NICK_LEN];
     printf("Apelido: ");
     scanf("%s", nick);
+    clear_input_buffer();
 
     // Formatando e enviando comando DELETE
     char command[MAX_MSG_LEN];
@@ -187,8 +199,6 @@ int main() {
     char input[10];
 
     while (1) {
-        // Verificando as recebeu mensagens
-        check_messages();
 
         show_menu();
 
@@ -199,7 +209,7 @@ int main() {
         }
 
         // Remover newline se existir
-        input[strcspn(input, "\n")] = 0;
+        //input[strcspn(input, "\n")] = 0;
 
         // Verificar se a entrada está vazia
         if (strlen(input) == 0) {
@@ -240,6 +250,9 @@ int main() {
             printf("Opção inválida.\n");
         }
         
+        // Verificando as recebeu mensagens
+        check_messages();
+        usleep(100000);
     }
     
     close(socket_fd);
