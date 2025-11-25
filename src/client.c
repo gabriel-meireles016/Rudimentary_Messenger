@@ -63,11 +63,6 @@ void check_messages() {
                        from, text, &ts) == 3)
                 printf("\n>>> Nova mensagem de %s: %s\n", from, text);
         } 
-        else if (strncmp(buffer, "USERS{", 6) == 0) {
-            printf("\n=== LISTA DE USUÁRIOS ===\n");
-            printf("%s\n", buffer);
-            printf("==========================\n");
-        }
         else {
             printf("Servidor: %s\n", buffer);
         }
