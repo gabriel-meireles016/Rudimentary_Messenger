@@ -46,7 +46,7 @@ void clear_input_buffer() {
     while ((c = getchar()) != '\n' && c != EOF);
 }
 
-// Função que verifica as mensagens recebidas do servidor - VERSÃO CORRIGIDA
+// Função que verifica as mensagens recebidas do servidor
 void check_messages() {
     char buffer[MAX_MSG_LEN];
     
@@ -203,9 +203,6 @@ int main() {
             usleep(100000); // Pequena pausa para não sobrecarregar CPU
             continue;
         }
-
-        // Remover newline se existir
-        //input[strcspn(input, "\n")] = 0;
 
         // Verificar se a entrada está vazia
         if (strlen(input) == 0) {
