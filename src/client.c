@@ -46,7 +46,7 @@ void clear_input_buffer() {
     while ((c = getchar()) != '\n' && c != EOF);
 }
 
-// Função que verifica as mensagens recebidas do servidor
+// Função que verifica as mensagens recebidas do servidor - VERSÃO CORRIGIDA
 void check_messages() {
     char buffer[MAX_MSG_LEN];
     
@@ -62,8 +62,7 @@ void check_messages() {
             if (sscanf(buffer, "DELIVER_MSG{\"from\":\"%[^\"]\",\"text\":\"%[^\"]\",\"ts\":%ld}", 
                        from, text, &ts) == 3)
                 printf("\n>>> Nova mensagem de %s: %s\n", from, text);
-        } 
-        else {
+        } else {
             printf("Servidor: %s\n", buffer);
         }
     } else if (bytes_received == 0) {
@@ -194,6 +193,8 @@ int main() {
     char input[10];
 
     while (1) {
+
+        check_messages();
 
         show_menu();
 

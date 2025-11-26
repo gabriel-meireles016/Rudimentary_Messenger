@@ -150,27 +150,31 @@ int delete_user(const char* nick, int requester_socket) {
 
 // Função que realiza login do usuário no sistema
 int login_user(const char* nick, int socket) {
-
-    // Verificando se o usuário existe
     User* user = find_user(nick);
     if (user == NULL)
         return -1;
     
-    // Verificando se o usuário já está online
     if (user->online)
         return -2;
     
-    // Atualizando estado do usuário
     user->online = 1;
     user->socket = socket;
 
-    // Entregando mensagens pendentes (store-and_foward)
+    // Entregando mensagens pendentes (store-and-forward)
     while (user->queue_size > 0) {
         char* msg = pop_from_queue(user);
         
         if (msg) {
-            send(socket, msg, strlen(msg), 0);  // Enviando a mensagem
-            free(msg);                          // Liberando a memória
+            // Verifica se o envio foi bem-sucedido antes de liberar a memória
+            int bytes_sent = send(socket, msg, strlen(msg), 0);
+            if (bytes_sent > 0) {
+                printf("Mensagem pendente entregue para %s: %s\n", nick, msg);
+            } else {
+                // Se falhou, recoloca a mensagem na fila
+                printf("Falha ao entregar mensagem pendente para %s\n", nick);
+                add_to_queue(user, msg);  // Recoloca na fila
+            }
+            free(msg);  // Libera a memória em ambos os casos
         }
     }
     
