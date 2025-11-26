@@ -38,7 +38,7 @@ make all
 ./bin/server
 ```
 
-Executar o Cliente
+#### Executar o Cliente
 ```
 ./bin/client
 ```
