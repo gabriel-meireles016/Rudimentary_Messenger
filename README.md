@@ -17,6 +17,19 @@ Mensageiro “um-a-um” cliente/servidor, com utilização apenas de chamadas d
 - Listagem de Usuários: Fornece lista completa de usuários com status
 - Comunicação Concorrente: Suporte a múltiplos clientes simultaneamente
 
+# Portas
+- Porta Padrão: 8080
+- O cliente conecta-se ao localhost (127.0.0.1)
+
+# Limites do Sistema
+- Máximo de usuários registrados: 100
+- Tamanho máximo do apelido (nickname): 50 caracteres
+- Tamanho máximo do nome completo: 100 caracteres
+- Tamanho máximo da mensagem: 1024 caracteres
+- Texto da mensagem: máximo 256 caracteres
+- Fila de mensagens: capacidade inicial de 10 mensagens, duplicando automaticamente quando necessário
+
+
 # Compilação
 
 #### Pré-requisitos
